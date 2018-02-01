@@ -1,0 +1,19 @@
+{
+  "name": "homebridge-samsung-airconditioner",
+  "version": "0.1",
+  "description": "node.js plugin for the Samsung smart samsung-airconditioners",
+"main" : "index.js",
+ 
+  "keywords": [
+    "Samsung",
+    "Air Conditioner",
+"homebridge-plugin"
+  ],
+  "engines": {
+    "node": ">=0.8",
+"homebridge": ">=0.1"
+  },
+  "dependencies": {
+        "exec": ">= 0.1.0"
+  }
+}
