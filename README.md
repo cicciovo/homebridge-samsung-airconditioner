@@ -1,4 +1,4 @@
-# homebridge-samsung
+# homebridge-samsung-airconditioner
 This is a script to communicate with samsung airconditioner.
 It's require jq and curl.
 a token to identify the airconditioner. You can find it very simply.
