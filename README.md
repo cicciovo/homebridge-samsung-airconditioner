@@ -5,8 +5,10 @@ This is a plugin for homebridge to add a Samsung AirConditioner as an accessory 
 In order to make it work you will need 
 
 
-- **jq** '''brew jq'''
-- **curl** '''brew curl'''
+- **jq** 
+'''brew jq'''
+- **curl** 
+'''brew curl'''
 - a **token** to authenticate with the AC. You can find this very simply running the plugin
 - a **certificate** to authenticate with the AC. You can find this very simply running the plugin
 - the **ip address** of the AC 
