@@ -10,7 +10,7 @@ In order to make it work you will need
 - **curl** 
 '''brew curl'''
 - a **token** to authenticate with the AC. You can find this very simply running the plugin
-- a **certificate** to authenticate with the AC. You can find this very simply running the plugin
+- a **certificate** to authenticate with the AC. This one is included and it is the same for every conditioner.
 - the **ip address** of the AC 
 
 
