@@ -1,4 +1,4 @@
-var Service, Characteristic;
+var Service, Characteristic, UUIDGen;
 var exec2 = require("child_process").exec;
 var response;
 
@@ -6,12 +6,17 @@ module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
     Accessory = homebridge.hap.Accessory;
+    UUIDGen = homebridge.hap.uuid;
     homebridge.registerAccessory("homebridge-samsung-airconditioner", "SamsungAirconditioner", SamsungAirco);
 };
 
 function SamsungAirco(log, config) {
     this.log=log;
     this.name= config["name"];
+    this.ip=config["ip"];
+    this.token=config["token"];
+    this.patchCert=config["patchCert"];
+    this.accessoryName=config["name"];
     this.setOn = true;
     this.setOff= false;
 }
@@ -19,7 +24,7 @@ function SamsungAirco(log, config) {
 
 
 SamsungAirco.prototype = {
-
+    
     
 execRequest: function(str, body, callback){
     exec2(str, function(error, stdout, stderr){
@@ -35,8 +40,10 @@ execRequest: function(str, body, callback){
     
 
 getServices: function() {
-        
-    this.aircoSamsung = new Service.HeaterCooler(this.name);
+    
+    var uuid;
+    uuid = UUIDGen.generate(this.accessoryName);
+    this.aircoSamsung = new Service.HeaterCooler(this.name, uuid);
     
         
     this.aircoSamsung.getCharacteristic(Characteristic.Active).on('get',this.getActive.bind(this)).on('set', this.setActive.bind(this)); //On  or Off
@@ -76,7 +83,7 @@ getServices: function() {
     
 getHeatingUpOrDwTemperature: function(callback) {
     var body;
-    str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X GET https://192.168.1.201:8888/devices|jq \'.Devices[0].Temperatures[0].desired\'';
+    str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Temperatures[0].desired\'';
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -101,7 +108,7 @@ getHeatingUpOrDwTemperature: function(callback) {
 setHeatingUpOrDwTemperature: function(temp, callback) {
     var body;
     
-    str = 'curl -X PUT -d \'{"desired": '+temp+'}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure https://192.168.1.201:8888/devices/0/temperatures/0';
+    str = 'curl -X PUT -d \'{"desired": '+temp+'}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices/0/temperatures/0';
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -121,7 +128,7 @@ setHeatingUpOrDwTemperature: function(temp, callback) {
 getCurrentHeaterCoolerState: function (callback) {
     var body;
     
-    str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X GET https://192.168.1.201:8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
+    str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -151,7 +158,7 @@ getCurrentHeaterCoolerState: function (callback) {
 getCurrentTemperature: function(callback) {
     var body;
     
-    str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X GET https://192.168.1.201:8888/devices|jq \'.Devices[0].Temperatures[0].current\'';
+    str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Temperatures[0].current\'';
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -174,7 +181,7 @@ getCurrentTemperature: function(callback) {
 getActive: function(callback) {
     var body;
     var OFForON;
-    str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X GET https://192.168.1.201:8888/devices|jq \'.Devices[0].Operation.power\'';
+    str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Operation.power\'';
     
     
     this.execRequest(str, body, function(error, stdout, stderr) {
@@ -207,11 +214,11 @@ setActive: function(state, callback) {
     this.log(state);
     var activeFuncion = function(state) {
         if (state==Characteristic.Active.ACTIVE) {
-            str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://192.168.1.201:8888/devices/0';
+            str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://'+this.ip+':8888/devices/0';
             console.log("ATTIVO");
         } else {
             console.log("INATTIVO");
-            str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://192.168.1.201:8888/devices/0';
+            str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+this.ip+':8888/devices/0';
         }
     }
     activeFuncion(state);
@@ -237,13 +244,13 @@ setPowerState: function(powerOn, callback) {
     if (powerOn) {
         body=this.setOn
         this.log("Acceso");
-        str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://192.168.1.201:8888/devices/0';
+        str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://'+this.ip+':8888/devices/0';
         //powerOn=false;
         
     } else {
         body=this.setOff;
         this.log("Spengo");
-        str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://192.168.1.201:8888/devices/0';
+        str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+this.ip+':8888/devices/0';
         //powerOn=true;
     }
     
@@ -269,7 +276,7 @@ getModalita: function(callback) {
    // if (data.setting.power=="OFF") {
     //    callback(null, null);
  //   }
-    str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure -X GET https://192.168.1.201:8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
+    str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                               if(error) {
@@ -307,7 +314,7 @@ setModalita: function(state, callback) {
             var body;
            // if (accessory.coolMode){
                 this.log("Setting  AC to COOL")
-                 str =  'curl -X PUT -d \'{"modes": ["Cool"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure https://192.168.1.201:8888/devices/0/mode';
+                 str =  'curl -X PUT -d \'{"modes": ["Cool"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
                                  this.log('Power function failed', stderr);
@@ -326,7 +333,7 @@ setModalita: function(state, callback) {
             var body;
             //if (accessory.heatMode){
                 this.log("Setting  AC to HEAT")
-                str =  'curl -X PUT -d \'{"modes": ["Heat"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure https://192.168.1.201:8888/devices/0/mode';
+                str =  'curl -X PUT -d \'{"modes": ["Heat"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
                                  this.log('Power function failed', stderr);
@@ -344,7 +351,7 @@ setModalita: function(state, callback) {
     var body;
            // if (accessory.autoMode){
                 this.log("Setting  AC to AUTO")
-                str =  'curl -X PUT -d \'{"modes": ["Auto"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure https://192.168.1.201:8888/devices/0/mode';
+                str =  'curl -X PUT -d \'{"modes": ["Auto"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
                                  this.log('Power function failed', stderr);
