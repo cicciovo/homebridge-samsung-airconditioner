@@ -1,4 +1,4 @@
-var Service, Characteristic, UUIDGen;
+var Service, Characteristic;
 var exec2 = require("child_process").exec;
 var response;
 
@@ -6,7 +6,7 @@ module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
     Accessory = homebridge.hap.Accessory;
-    UUIDGen = homebridge.hap.uuid;
+    //UUIDGen = homebridge.hap.uuid;
     homebridge.registerAccessory("homebridge-samsung-airconditioner", "SamsungAirconditioner", SamsungAirco);
 };
 
@@ -41,9 +41,9 @@ execRequest: function(str, body, callback){
 
 getServices: function() {
     
-    var uuid;
-    uuid = UUIDGen.generate(this.accessoryName);
-    this.aircoSamsung = new Service.HeaterCooler(this.name, uuid);
+    //var uuid;
+    //uuid = UUIDGen.generate(this.accessoryName);
+    this.aircoSamsung = new Service.HeaterCooler(this.name);
     
         
     this.aircoSamsung.getCharacteristic(Characteristic.Active).on('get',this.getActive.bind(this)).on('set', this.setActive.bind(this)); //On  or Off
@@ -85,6 +85,8 @@ getHeatingUpOrDwTemperature: function(callback) {
     var body;
     str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Temperatures[0].desired\'';
     
+    this.log(str);
+    
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
                      //this.log('Power function failed', stderr);
@@ -108,7 +110,8 @@ getHeatingUpOrDwTemperature: function(callback) {
 setHeatingUpOrDwTemperature: function(temp, callback) {
     var body;
     
-    str = 'curl -X PUT -d \'{"desired": '+temp+'}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices/0/temperatures/0';
+    str = 'curl -X PUT -d \'{"desired": '+temp+'}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/temperatures/0';
+    this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -129,6 +132,7 @@ getCurrentHeaterCoolerState: function (callback) {
     var body;
     
     str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
+    this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -159,6 +163,7 @@ getCurrentTemperature: function(callback) {
     var body;
     
     str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Temperatures[0].current\'';
+    this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -183,6 +188,7 @@ getActive: function(callback) {
     var OFForON;
     str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Operation.power\'';
     
+    this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -200,7 +206,7 @@ getActive: function(callback) {
                      if (this.response == "Off") {
                      callback(null, Characteristic.Active.INACTIVE);
                      } else if (this.response == "On") {
-                     this.log("AZZZ");
+                     this.log("Acceso");
                      callback(null, Characteristic.Active.ACTIVE);
                      } else {
                      this.log(this.response+ "NON LO SO");
@@ -211,22 +217,30 @@ getActive: function(callback) {
     
 setActive: function(state, callback) {
     var body;
+    var token, ip, patchCert;
+    token=this.token;
+    ip=this.ip;
+    patchCert=this.patchCert;
+    
+    this.log("COSA E");
     this.log(state);
+    this.log(ip);
     var activeFuncion = function(state) {
         if (state==Characteristic.Active.ACTIVE) {
-            str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://'+this.ip+':8888/devices/0';
+            str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'" --cert '+patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://'+ip+':8888/devices/0';
             console.log("ATTIVO");
         } else {
             console.log("INATTIVO");
-            str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+this.ip+':8888/devices/0';
+            str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'" --cert '+patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+ip+':8888/devices/0';
         }
     }
     activeFuncion(state);
+    this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
                      this.log('Power function failed', stderr);
-                     callback(error);
+                     //callback(error);
                      } else {
                      this.log('Power function OK');
                      //callback();
@@ -253,7 +267,7 @@ setPowerState: function(powerOn, callback) {
         str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+this.ip+':8888/devices/0';
         //powerOn=true;
     }
-    
+    this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
@@ -277,6 +291,7 @@ getModalita: function(callback) {
     //    callback(null, null);
  //   }
     str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
+    this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                               if(error) {
@@ -315,6 +330,7 @@ setModalita: function(state, callback) {
            // if (accessory.coolMode){
                 this.log("Setting  AC to COOL")
                  str =  'curl -X PUT -d \'{"modes": ["Cool"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
+                 this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
                                  this.log('Power function failed', stderr);
@@ -334,6 +350,7 @@ setModalita: function(state, callback) {
             //if (accessory.heatMode){
                 this.log("Setting  AC to HEAT")
                 str =  'curl -X PUT -d \'{"modes": ["Heat"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
+                this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
                                  this.log('Power function failed', stderr);
@@ -352,6 +369,7 @@ setModalita: function(state, callback) {
            // if (accessory.autoMode){
                 this.log("Setting  AC to AUTO")
                 str =  'curl -X PUT -d \'{"modes": ["Auto"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
+                this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
                                  this.log('Power function failed', stderr);
