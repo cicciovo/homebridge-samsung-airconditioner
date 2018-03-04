@@ -14,14 +14,14 @@
 			"name": "Climatizzatore",
 "ip": "192.168.1.201",
 "token": "xxxxx",
-"patchCert": "/Users/francescobosco/Desktop/ac14k_m.pem"
+"patchCert": "/usr/local/lib/node_modules/homebridge-samsung-airconditioner/ac14k_m.pem"
 		},
 {
 			"accessory": "SamsungAirconditioner",
 			"name": "Climatizzatore2",
 "ip": "192.168.1.21",
 "token": "xxxxxx",
-"patchCert": "/Users/francescobosco/Desktop/ac14k_m.pem"
+"patchCert": "/usr/local/lib/node_modules/homebridge-samsung-airconditioner/ac14k_m.pem"
 		}
 	]
 }
