@@ -20,7 +20,10 @@ This allows you to control your Samsung Airconditioner with HomeKit and Siri.
 	3.5 In the window where are running the file Server8889.py should be appare the TOKEN, copy and past it in your config.json
 	
 4. Update your configuration file. See `config.json`.
+
 	4.1 Change the ip whit the ip of your AC
+	
 	4.2 Change the token with the token obtain in step 3
+	
 	4.3 if necessary change the patchCert
 	
