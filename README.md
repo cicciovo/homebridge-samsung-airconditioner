@@ -29,5 +29,7 @@ curl -k -H "Content-Type: application/json" -H "DeviceToken: xxxxxxxxxxx" --cert
 	4.2 Change the token with the token obtain in step 3
 
 	4.3 if necessary change the patchCert
+	
+	4.4 If ypu obtain an error with this string "Power function failed /bin/sh: jq: not found" install jq with the command brew install jq
 
 	
