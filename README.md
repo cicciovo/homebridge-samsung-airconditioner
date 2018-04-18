@@ -4,6 +4,8 @@ Samsung Airconditioenr plugin for [Homebridge]
 
 This allows you to control your Samsung Airconditioner with HomeKit and Siri.
 
+THIS SCRIPT FOR NOW WORKS ONLY WITH THE AC WITH THE PORT NUMBER 8888 AND NOT WITH THE PORT 2878
+
 ##Installation
 1. Install homebridge using: npm install -g homebridge
 2. Install this plugin using: sudo npm install -g homebridge-samsung-airconditioner
