@@ -290,7 +290,7 @@ getModalita: function(callback) {
    // if (data.setting.power=="OFF") {
     //    callback(null, null);
  //   }
-    str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
+    str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
     this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
@@ -329,7 +329,7 @@ setModalita: function(state, callback) {
             var body;
            // if (accessory.coolMode){
                 this.log("Setting  AC to COOL")
-                 str =  'curl -X PUT -d \'{"modes": ["Cool"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
+                 str =  'curl -X PUT -d \'{"modes": ["Cool"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
                  this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
@@ -349,7 +349,7 @@ setModalita: function(state, callback) {
             var body;
             //if (accessory.heatMode){
                 this.log("Setting  AC to HEAT")
-                str =  'curl -X PUT -d \'{"modes": ["Heat"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
+                str =  'curl -X PUT -d \'{"modes": ["Heat"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
                 this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
@@ -368,7 +368,7 @@ setModalita: function(state, callback) {
     var body;
            // if (accessory.autoMode){
                 this.log("Setting  AC to AUTO")
-                str =  'curl -X PUT -d \'{"modes": ["Auto"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
+                str =  'curl -X PUT -d \'{"modes": ["Auto"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure https://'+this.ip+':8888/devices/0/mode';
                 this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
