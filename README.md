@@ -22,14 +22,22 @@ curl -k -H "Content-Type: application/json" -H "DeviceToken: xxxxxxxxxxx" --cert
 
 	3.5 In the window where are running the file Server8889.py should be appare the TOKEN, copy and past it in your config.json
 
-4. Update your configuration file. See `config.json`.
+4. Remember to install "Samsung root certificate" in the System, 
+	4.1 if you are on the mac double click on the certain
+	4.2 in you are in Raspberry to add the root certificate this:
+		sudo mkdir /usr/share/ca-certificates/local
+		sudo cp /usr/lib/node_modules/homebridge-samsung-airconditioner/ac14k_m.pem /usr/share/ca-certificates/local/
+		sudo update-ca-certificates
 
-	4.1 Change the ip with the ip of your AC
+5. Update your configuration file. See `config.json`.
 
-	4.2 Change the token with the token obtain in step 3
+	5.1 Change the ip with the ip of your AC
 
-	4.3 if necessary change the patchCert
+	5.2 Change the token with the token obtain in step 3
+
+	5.3 if necessary change the patchCert
 	
-	4.4 If ypu obtain an error with this string "Power function failed /bin/sh: jq: not found" install jq with the command brew install jq
-
+	5.4 If ypu obtain an error with this string "Power function failed /bin/sh: jq: not found" install jq with the command brew install jq
 	
+6. If you obtain an Nan error see if your AC is connected to the wifi.
+
