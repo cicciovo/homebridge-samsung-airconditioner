@@ -22,11 +22,16 @@ curl -k -H "Content-Type: application/json" -H "DeviceToken: xxxxxxxxxxx" --cert
 
 	3.5 In the window where are running the file Server8889.py should be appare the TOKEN, copy and past it in your config.json
 
-4. Remember to install "Samsung root certificate" in the System, 
+4. Remember to install "Samsung root certificate" in the System
+
 	4.1 if you are on the mac double click on the certain
+	
 	4.2 in you are in Raspberry to add the root certificate this:
+	
 		sudo mkdir /usr/share/ca-certificates/local
+		
 		sudo cp /usr/lib/node_modules/homebridge-samsung-airconditioner/ac14k_m.pem /usr/share/ca-certificates/local/
+		
 		sudo update-ca-certificates
 
 5. Update your configuration file. See `config.json`.
