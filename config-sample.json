@@ -8,12 +8,12 @@
 	"description": "Example Homebridge config for the Samsung air conditioner homebridge plugin",
 	"accessories": [
 		{
-			"accessory": "SamsungAirconditioner",
-			"name": "Air Conditioner",
-			"ip": "192.168.1.10",
-			"token": "xxxxx",
-			"patchCert": "/usr/share/ca-certificates/local/ac14k_m.pem",
-			"userAllowedMode": "both"
+			"accessory": "SamsungSmartAirConditioner",
+			"name": "My Aircon",
+			"ip": "192.168.1.x",
+			"token": "A1B2C3D4E5F",
+			"patchCert": "/usr/local/lib/node_modules/homebridge-samsung-aircon-8888/ac14k_m.pem",
+			"userAllowedMode": "cool"
 		}
 	]
 }
