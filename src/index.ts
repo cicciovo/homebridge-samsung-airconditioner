@@ -52,7 +52,9 @@ class SamsungAircon {
 		this.token = token
 		this.patchCert = patchCert
 		this.accessoryName = name
-		this.userAllowedMode = ['heat', 'cool', 'both'].includes(userAllowedMode.toLowerCase()) ? userAllowedMode.toLowerCase() : 'both'
+		this.userAllowedMode = ['heat', 'cool', 'both'].includes(userAllowedMode.toLowerCase())
+			? userAllowedMode.toLowerCase() as 'heat' | 'cool' | 'both'
+			: 'both'
 		this.response = ''
 		this.curlGetPartials = [
 			'curl -s -k',
@@ -85,7 +87,7 @@ class SamsungAircon {
 		// On or Off
 		this.aircon
 		.getCharacteristic(Characteristic.Active)
-		.on('get', callbackify(this.getActive, this.log))
+		.on('get', callbackify(this.getActive))
 		.on('set', callbackify(this.setActive))
 
 		this.aircon
@@ -187,7 +189,6 @@ class SamsungAircon {
 			? ` \'.Devices[0].${dottedKey}\'`
 			: ` \'.Devices[0]\'`
 		const str = this.curlGetPartials.join(' ') + last_str
-		this.log('curl get: ' + str)
 		return str
 	}
 
@@ -199,7 +200,6 @@ class SamsungAircon {
 				: append
 			: ''
 		const str = this.curSetPartials(request, post_str).join(' ')
-		this.log('curl set: ' + str)
 		return str
 	}
 
@@ -276,15 +276,12 @@ class SamsungAircon {
 		 * - FilterLifeLevel √
 		 * - ResetFilterIndication
 		 */
-		this.log('Getting Service...')
 		return [this.infoService, this.aircon, this.airconFilter]
 	}
 
 	public getActive: () => Promise<EnumValueLiterals<HbActiveEnum>>
 	= async () => {
-		this.log('getActive is called')
 		const curlStr = this.genCurlGetStr('Operation.power')
-		this.log('getActive: ' + curlStr)
 		const curlResponse = await this.execRequest(curlStr) as OnOff
 			
 		if (typeof curlResponse === 'string') { // just to safe-guard response
@@ -317,7 +314,6 @@ class SamsungAircon {
 	public getCurrentTemperature: () => Promise<number>
 	= async () => {
 		const curlStr = this.genCurlGetStr('Temperatures[0].current')
-		this.log('getCurrentTemperature: ' + curlStr)
 		const curlResponse = await this.execRequest(curlStr) as number
 		if (!!curlResponse && typeof curlResponse === 'number') {
 			const cur_temp = Math.round(curlResponse * 10) / 10
@@ -335,7 +331,6 @@ class SamsungAircon {
 	public getMode: () => Promise<EnumValueLiterals<HbTargetHeaterCoolerStateEnum>>
 	= async () => {
 		const curlStr = this.genCurlGetStr('Mode.modes[0]')
-		this.log('getMode: ' + curlStr)
 		const curlResponse = await this.execRequest(curlStr) as AirconMode
 		const char = Characteristic.TargetHeaterCoolerState
 		switch (curlResponse) {
@@ -389,7 +384,6 @@ class SamsungAircon {
 	public getSwingMode: () => Promise<EnumValueLiterals<HbSwingModeEnum>>
 	= async () => {
 		const curlStr = this.genCurlGetStr('Wind.direction')
-		this.log('getSwingMode: ' + curlStr)
 		const curlResponse = await this.execRequest(curlStr) as Swing
 		const char = Characteristic.SwingMode
 		switch (curlResponse) {
@@ -429,7 +423,6 @@ class SamsungAircon {
 	public getRotationSpeed: () => Promise<number>
 	= async () => {
 		const curlStr = this.genCurlGetStr('Wind.speedLevel')
-		this.log('getRotationSpeed get wind: ' + curlStr)
 		const curlResponse = await this.execRequest(curlStr) as number
 		return curlResponse || 0
 	}
@@ -459,7 +452,6 @@ class SamsungAircon {
 	public getTargetTemperature: () => Promise<number>
 	= async () => {
 		const curlStr = this.genCurlGetStr('Temperatures[0].desired')
-		this.log('getTargetTemperature: ' + curlStr)
 		const curlResponse = await this.execRequest(curlStr) as number
 		if (!!curlResponse && typeof curlResponse === 'number') {
 			return Math.round(curlResponse)
@@ -481,7 +473,6 @@ class SamsungAircon {
 	public getCurrentHeaterCoolerState: () => Promise<EnumValueLiterals<HbCurrentHeaterCoolerStateEnum>>
 	= async () => {
 		const curlStr = this.genCurlGetStr('Mode.modes[0]')
-		this.log('getCurrentHeaterCoolerState: ' + curlStr)
 		const curlResponse = await this.execRequest(curlStr) as AirconMode
 		const char = Characteristic.CurrentHeaterCoolerState
 		switch (curlResponse) {
@@ -508,10 +499,7 @@ class SamsungAircon {
 	}> // Promise all in number
 	= async () => {
 		const curlStr = this.genCurlGetStr('Mode.options')
-		this.log('getFilterChangeIndication: ' + curlStr)
 		const curlResponse = await this.execRequest(curlStr) as AirconModeOption[]
-
-		this.log('Samsung Aircon: options: ' + JSON.stringify(curlResponse))
 		
 		// There is a FilterCleanAlarm_0, but seems not for this purpose...
 		// find 'FilterTime_x' etc.

@@ -161,9 +161,6 @@ function () {
     _defineProperty(this, "genCurlGetStr", function (dottedKey) {
       var last_str = !!dottedKey ? ` \'.Devices[0].${dottedKey}\'` : ` \'.Devices[0]\'`;
       var str = _this.curlGetPartials.join(' ') + last_str;
-
-      _this.log('curl get: ' + str);
-
       return str;
     });
 
@@ -171,8 +168,6 @@ function () {
       var post_str = !!append ? append.startsWith('/') ? append.substring(1, append.length) : append : '';
 
       var str = _this.curSetPartials(request, post_str).join(' ');
-
-      _this.log('curl set: ' + str);
 
       return str;
     });
@@ -232,8 +227,6 @@ function () {
        * - FilterLifeLevel √
        * - ResetFilterIndication
        */
-      _this.log('Getting Service...');
-
       return [_this.infoService, _this.aircon, _this.airconFilter];
     });
 
@@ -247,42 +240,37 @@ function () {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _this.log('getActive is called');
-
               curlStr = _this.genCurlGetStr('Operation.power');
-
-              _this.log('getActive: ' + curlStr);
-
-              _context.next = 5;
+              _context.next = 3;
               return _this.execRequest(curlStr);
 
-            case 5:
+            case 3:
               curlResponse = _context.sent;
 
               if (!(typeof curlResponse === 'string')) {
-                _context.next = 13;
+                _context.next = 11;
                 break;
               }
 
               // just to safe-guard response
               char = Characteristic.Active;
               _context.t0 = curlResponse;
-              _context.next = _context.t0 === 'On' ? 11 : _context.t0 === 'Off' ? 12 : 13;
+              _context.next = _context.t0 === 'On' ? 9 : _context.t0 === 'Off' ? 10 : 11;
               break;
 
-            case 11:
+            case 9:
               return _context.abrupt("return", char.ACTIVE);
 
-            case 12:
+            case 10:
               return _context.abrupt("return", char.INACTIVE);
 
-            case 13:
+            case 11:
               _this.log('Samsung Aircon: invalid power'); // Other cases: throw as Error
 
 
               throw 'invalid-power';
 
-            case 15:
+            case 13:
             case "end":
               return _context.stop();
           }
@@ -336,17 +324,14 @@ function () {
           switch (_context3.prev = _context3.next) {
             case 0:
               curlStr = _this.genCurlGetStr('Temperatures[0].current');
-
-              _this.log('getCurrentTemperature: ' + curlStr);
-
-              _context3.next = 4;
+              _context3.next = 3;
               return _this.execRequest(curlStr);
 
-            case 4:
+            case 3:
               curlResponse = _context3.sent;
 
               if (!(!!curlResponse && typeof curlResponse === 'number')) {
-                _context3.next = 10;
+                _context3.next = 9;
                 break;
               }
 
@@ -357,12 +342,12 @@ function () {
 
               return _context3.abrupt("return", cur_temp);
 
-            case 10:
+            case 9:
               _this.log('Samsung Aircon: invalid current temperature');
 
               throw 'invalid-current-temperature';
 
-            case 12:
+            case 11:
             case "end":
               return _context3.stop();
           }
@@ -381,40 +366,37 @@ function () {
           switch (_context4.prev = _context4.next) {
             case 0:
               curlStr = _this.genCurlGetStr('Mode.modes[0]');
-
-              _this.log('getMode: ' + curlStr);
-
-              _context4.next = 4;
+              _context4.next = 3;
               return _this.execRequest(curlStr);
 
-            case 4:
+            case 3:
               curlResponse = _context4.sent;
               char = Characteristic.TargetHeaterCoolerState;
               _context4.t0 = curlResponse;
-              _context4.next = _context4.t0 === 'Auto' ? 9 : _context4.t0 === 'Cool' ? 10 : _context4.t0 === 'Heat' ? 11 : _context4.t0 === 'Dry' ? 12 : _context4.t0 === 'Wind' ? 13 : 14;
+              _context4.next = _context4.t0 === 'Auto' ? 8 : _context4.t0 === 'Cool' ? 9 : _context4.t0 === 'Heat' ? 10 : _context4.t0 === 'Dry' ? 11 : _context4.t0 === 'Wind' ? 12 : 13;
               break;
 
-            case 9:
+            case 8:
               return _context4.abrupt("return", char.AUTO);
 
-            case 10:
+            case 9:
               return _context4.abrupt("return", char.COOL);
 
-            case 11:
+            case 10:
               return _context4.abrupt("return", char.HEAT);
+
+            case 11:
+              return _context4.abrupt("return", char.AUTO);
 
             case 12:
               return _context4.abrupt("return", char.AUTO);
 
             case 13:
-              return _context4.abrupt("return", char.AUTO);
-
-            case 14:
               _this.log('Samsung Aircon: invalid mode');
 
               throw 'invalid-mode';
 
-            case 16:
+            case 15:
             case "end":
               return _context4.stop();
           }
@@ -481,31 +463,28 @@ function () {
           switch (_context6.prev = _context6.next) {
             case 0:
               curlStr = _this.genCurlGetStr('Wind.direction');
-
-              _this.log('getSwingMode: ' + curlStr);
-
-              _context6.next = 4;
+              _context6.next = 3;
               return _this.execRequest(curlStr);
 
-            case 4:
+            case 3:
               curlResponse = _context6.sent;
               char = Characteristic.SwingMode;
               _context6.t0 = curlResponse;
-              _context6.next = _context6.t0 === 'Fix' ? 9 : _context6.t0 === 'Up_And_Low' ? 10 : 11;
+              _context6.next = _context6.t0 === 'Fix' ? 8 : _context6.t0 === 'Up_And_Low' ? 9 : 10;
               break;
 
-            case 9:
+            case 8:
               return _context6.abrupt("return", char.SWING_DISABLED);
 
-            case 10:
+            case 9:
               return _context6.abrupt("return", char.SWING_ENABLED);
 
-            case 11:
+            case 10:
               _this.log('Samsung Aircon: invalid swing mode');
 
               throw 'invalid-swing-mode';
 
-            case 13:
+            case 12:
             case "end":
               return _context6.stop();
           }
@@ -574,17 +553,14 @@ function () {
           switch (_context8.prev = _context8.next) {
             case 0:
               curlStr = _this.genCurlGetStr('Wind.speedLevel');
-
-              _this.log('getRotationSpeed get wind: ' + curlStr);
-
-              _context8.next = 4;
+              _context8.next = 3;
               return _this.execRequest(curlStr);
 
-            case 4:
+            case 3:
               curlResponse = _context8.sent;
               return _context8.abrupt("return", curlResponse || 0);
 
-            case 6:
+            case 5:
             case "end":
               return _context8.stop();
           }
@@ -652,28 +628,25 @@ function () {
           switch (_context10.prev = _context10.next) {
             case 0:
               curlStr = _this.genCurlGetStr('Temperatures[0].desired');
-
-              _this.log('getTargetTemperature: ' + curlStr);
-
-              _context10.next = 4;
+              _context10.next = 3;
               return _this.execRequest(curlStr);
 
-            case 4:
+            case 3:
               curlResponse = _context10.sent;
 
               if (!(!!curlResponse && typeof curlResponse === 'number')) {
-                _context10.next = 9;
+                _context10.next = 8;
                 break;
               }
 
               return _context10.abrupt("return", Math.round(curlResponse));
 
-            case 9:
+            case 8:
               _this.log('Samsung Aircon: invalid target temperature');
 
               throw 'invalid-target-temperature';
 
-            case 11:
+            case 10:
             case "end":
               return _context10.stop();
           }
@@ -725,40 +698,37 @@ function () {
           switch (_context12.prev = _context12.next) {
             case 0:
               curlStr = _this.genCurlGetStr('Mode.modes[0]');
-
-              _this.log('getCurrentHeaterCoolerState: ' + curlStr);
-
-              _context12.next = 4;
+              _context12.next = 3;
               return _this.execRequest(curlStr);
 
-            case 4:
+            case 3:
               curlResponse = _context12.sent;
               char = Characteristic.CurrentHeaterCoolerState;
               _context12.t0 = curlResponse;
-              _context12.next = _context12.t0 === 'Auto' ? 9 : _context12.t0 === 'Cool' ? 10 : _context12.t0 === 'Heat' ? 11 : _context12.t0 === 'Dry' ? 12 : _context12.t0 === 'Wind' ? 13 : 14;
+              _context12.next = _context12.t0 === 'Auto' ? 8 : _context12.t0 === 'Cool' ? 9 : _context12.t0 === 'Heat' ? 10 : _context12.t0 === 'Dry' ? 11 : _context12.t0 === 'Wind' ? 12 : 13;
               break;
 
-            case 9:
+            case 8:
               return _context12.abrupt("return", char.IDLE);
 
-            case 10:
+            case 9:
               return _context12.abrupt("return", char.COOLING);
 
-            case 11:
+            case 10:
               return _context12.abrupt("return", char.HEATING);
+
+            case 11:
+              return _context12.abrupt("return", char.INACTIVE);
 
             case 12:
               return _context12.abrupt("return", char.INACTIVE);
 
             case 13:
-              return _context12.abrupt("return", char.INACTIVE);
-
-            case 14:
               _this.log('Samsung Aircon: invalid current heating cooling state');
 
               throw 'invalid-current-heating-cooling-state';
 
-            case 16:
+            case 15:
             case "end":
               return _context12.stop();
           }
@@ -778,19 +748,13 @@ function () {
           switch (_context13.prev = _context13.next) {
             case 0:
               curlStr = _this.genCurlGetStr('Mode.options');
-
-              _this.log('getFilterChangeIndication: ' + curlStr);
-
-              _context13.next = 4;
+              _context13.next = 3;
               return _this.execRequest(curlStr);
 
-            case 4:
+            case 3:
               curlResponse = _context13.sent;
-
-              _this.log('Samsung Aircon: options: ' + JSON.stringify(curlResponse)); // There is a FilterCleanAlarm_0, but seems not for this purpose...
+              // There is a FilterCleanAlarm_0, but seems not for this purpose...
               // find 'FilterTime_x' etc.
-
-
               FilterTimeStr = curlResponse.find(function (opt) {
                 return opt.startsWith('FilterTime_');
               });
@@ -806,7 +770,7 @@ function () {
                 filterAlarmTime: filterAlarmTime || 0
               });
 
-            case 11:
+            case 9:
             case "end":
               return _context13.stop();
           }
@@ -910,7 +874,7 @@ function () {
 
     this.infoService = new Service.AccessoryInformation(); // On or Off
 
-    this.aircon.getCharacteristic(Characteristic.Active).on('get', callbackify(this.getActive, this.log)).on('set', callbackify(this.setActive));
+    this.aircon.getCharacteristic(Characteristic.Active).on('get', callbackify(this.getActive)).on('set', callbackify(this.setActive));
     this.aircon.getCharacteristic(Characteristic.CurrentTemperature).setProps({
       minValue: -100,
       maxValue: 100,
