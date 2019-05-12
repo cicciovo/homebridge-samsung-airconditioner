@@ -20,7 +20,7 @@ if you encounter permission issue, you may need do this with `sudo` and `--unsaf
 sudo npm install -g homebridge --unsafe-perm
 ```
 
-###Install Plugin
+### Install Plugin
 
 At current stage, this plugin has not been published to npm.
 
