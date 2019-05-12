@@ -1,11 +1,9 @@
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from optparse import OptionParser
 import ssl
+import sys
 
-
-class RequestHandler(BaseHTTPRequestHandler):
-   
-    
+class RequestHandler(BaseHTTPRequestHandler):    
     def do_GET(self):
         
         request_path = self.path
@@ -44,7 +42,7 @@ def main():
     port = 8889
     print('Listening on localhost:%s' % port)
     server = HTTPServer(('', port), RequestHandler)
-    server.socket = ssl.wrap_socket(server.socket, certfile='/usr/local/lib/node_modules/homebridge-samsung-airconditioner/ac14k_m.pem', server_side=True)
+    server.socket = ssl.wrap_socket(server.socket, certfile = sys.argv[1], server_side=True)
     server.serve_forever()
 
 
