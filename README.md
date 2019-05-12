@@ -111,19 +111,17 @@ Usually, you may find your Homebridge config file at `~/.homebridge/config.json`
 
 You may refer to the `config-sample.json` in this project folder as reference.
 
-```json
+```jvascript
 {
     // Homebridge and other configs...
-    "accessories": [
-        {
-            "accessory": "SamsungSmartAirConditioner", // do not change this
-			"name": "My Aircon",
-			"ip": "192.168.1.x", // AC's static IP
-			"token": "A1B2C3D4E5F", // the token 
-			"patchCert": "/usr/local/lib/node_modules/homebridge-samsung-aircon-8888/ac14k_m.pem",
-			"userAllowedMode": "cool" // 'both','heat', 'cool'
-        }
-    ]
+    "accessories": [{
+        "accessory": "SamsungSmartAirConditioner", // do not change this
+        "name": "My Aircon",
+        "ip": "192.168.1.x", // AC's static IP
+        "token": "A1B2C3D4E5F", // the token 
+        "patchCert": "/usr/local/lib/node_modules/homebridge-samsung-aircon-8888/ac14k_m.pem",
+        "userAllowedMode": "cool" // 'both','heat', 'cool'
+    }]
 }
 ```
 
