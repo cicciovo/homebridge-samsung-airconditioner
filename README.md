@@ -26,7 +26,7 @@ If you encounter permission issue, you may need do this with `sudo` and `--unsaf
 sudo npm install -g homebridge --unsafe-perm
 ```
 
-If you are on Raspberry or Debian system, and wish to add `homebridge` to use `systemd` to run homebridge to persist this service, here is the [reference](https://gist.github.com/johannrichard/0ad0de1feb6adb9eb61a/).
+If you are on Raspberry or Debian system, and wish to use `systemd` to run `homebridge` so that it is persisted, please refer to this [reference](https://gist.github.com/johannrichard/0ad0de1feb6adb9eb61a/).
 
 ### Install Plugin
 
@@ -35,7 +35,7 @@ At current stage, this plugin has not been published to npm.
 Therefore, you need `git clone` this plugin, and install it with `npm install -g /your-local-absolute-path-to-plugin` or via `npm link`.
 
 ### Install jq
-[jq](https://stedolan.github.io/jq/) is a command-line JSON parse tool. You need install jq first.
+[jq](https://stedolan.github.io/jq/) is a command-line JSON parse tool. You need install `jq` first.
 
 On Mac, if you have [`brew`](https://brew.sh/) installed:
 
@@ -53,7 +53,7 @@ apt-get install jq
 
 #### Assign Static IP
 
-It is highly recommended to assign a static IP to your AC. If you have not done so, please do this via your home router, and restart your AC (cut off power, not via remote only) or router thereafter to make sure that your AC does have the static IP you have assigned to.
+It is highly recommended to assign a static IP to your AC. If you have not done so, please do this via your home router, and restart your AC (cut off power, not via remote only) or router thereafter, to make sure that your AC does have the static IP you have assigned to.
 
 #### Get Token
 
@@ -65,12 +65,13 @@ From the folder:
 python Server8889.py
 ```
 
-Note that this scripts needs the root cert `ac14k_m.pem`, which is in the plugin folder as well. It assumes that your plugin is installed at `/usr/local/lib/node_modules/homebridge-samsung-aircon-8888/`. If in any case the path of your installed module is different, you need feed it with the correct path:
+Note that this scripts needs the cert `ac14k_m.pem`, which is in the plugin folder as well. It assumes that your plugin is installed at `/usr/local/lib/node_modules/homebridge-samsung-aircon-8888`. If in any case that the path of your installed module is different, you need feed it with the correct path:
 
 ```bash
 python Server8889.py /my-absolute-path-to/ac14k_m.pem
 ```
-If successful, a server will run and listening to the response from your AC. **Open a new Terminal / Shell window**, and type in as follows. **Please do not hit enter to execute this first**.
+
+If successful, a server will run and listen to the response from your AC. **Open a new Terminal / Shell window**, and type in as follows. **Please do not hit enter to execute this first**.
 
 ```bash
 curl -k -H "Content-Type: application/json" -H "DeviceToken: xxxxxxxxxxx" --cert /usr/local/lib/node_modules/homebridge-samsung-aircon-8888/ac14k_m.pem --insecure -X POST https://192.168.1.xxx:8888/devicetoken/request
@@ -78,9 +79,9 @@ curl -k -H "Content-Type: application/json" -H "DeviceToken: xxxxxxxxxxx" --cert
 
 Please replace the IP address to your AC's static IP. If you have your cert elsewhere, please replace the cert path too.
 
-Turn off your AC, then hit enter to run the script, then turn on your AC again.
+Turn off your AC, and then hit enter to run the script. Then turn on your AC again.
 
-Return to the Shell window that is running the python scipt. You should see the following:
+Return to the Shell window that is running the python script. You should see the following:
 
 ```
 ----- Request Start ----->
@@ -137,21 +138,21 @@ You may refer to the `config-sample.json` in this project folder as reference.
 
 Accepted value: `'both'`, `'heat'`, `'cool'`.
 
-While this AC technically supports both heating and cooling, Samsung has made specific models for some countries, and may have either heating or cooling disabled (even though the disabled mode can still be found on the official remote control, it's not functioning). Also, some parts of the world need not one of the modes.
+While this AC technically supports both heating and cooling, Samsung has made specific models for some countries, and may have either heating or cooling disabled (even though the disabled mode can still be found on the official remote control, it's not functioning). Also, some parts of the world need not one of these modes.
 
-Based on your AC model and your living place, you may set this value to `'heat'` to allow heating only, or `'cool'` to allow cooling only, or `'both'`.
+Based on your AC model and your living place, you may wish to set this value to `'heat'` to allow heating only, or `'cool'` to allow cooling only, or `'both'`.
 
 Please note that due to Homekit limitation, this may not be perfect.
 
 ## Some Notes
 
-### Fan / Wind / Dry Mode
+### Fan or Wind / Dry Mode
 
-At current stage, homekit `HeaterCooler` does not have an option for this mode.
+At current stage, homekit `HeaterCooler` does not have an option for these modes.
 
 ### Heating / Cooling Trigger Threshold
 
-While this is not really an AC function, adjusting them is actually setting the **target temperature**.
+While this is not really an AC function, adjusting them is actually setting the **target temperature**. There are no separate thresholds for this AC. (and Homekit `HeaterCooler` does not support `TargetTemperature` directly. `Thermostat` supports it, but it does not have some other functions...)
 
 ### Swing and Wind Level
 
@@ -159,12 +160,12 @@ Switching between swinging and fixed modes is fine. The "Rotation Speed" is actu
 
 ### Filter
 
-Support for filter health has been added, though I am not sure how to see it. Its display is fine in the 3rd party Home app.
+Support for filter health has been added, though I am not sure how to see it in Apple's Home app. Its status is accessible via Siri. You may see this information if you use [Home 3](https://itunes.apple.com/us/app/home-3/id995994352?mt=8) app.
 
-Function of resetting filter status has not been added.
+Resetting filter status function is yet to add.
 
 ## Credit
 
-This project is forked from [cicciovo/homebridge-samsung-airconditioner](https://github.com/cicciovo/homebridge-samsung-airconditioner) and rewrote in Typescript.
+This project is forked from [cicciovo/homebridge-samsung-airconditioner](https://github.com/cicciovo/homebridge-samsung-airconditioner) and rewritten in Typescript.
 
-The Typescipt part uses [homebridge-tesla](https://github.com/nfarina/homebridge-tesla) as reference, as well as some `utils` methods.
+The Typescipt part uses [homebridge-tesla](https://github.com/nfarina/homebridge-tesla) as reference, as well as for some `utils` methods.
