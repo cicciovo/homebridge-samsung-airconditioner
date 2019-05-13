@@ -1,6 +1,7 @@
 
 require('@babel/polyfill')
-import callbackify from "./util/callbackify"
+import callbackify from './util/callbackify'
+import { getVal, getIntFromUnderscoredString } from './util/helpers'
 import { exec } from 'child_process'
 import {
 	HbActiveEnum,
@@ -22,11 +23,17 @@ import {
 	Wind,
 	Swing,
 	OnOff,
+	AirconResponse,
 } from './types/ss-aircon'
 
 let Service: HAPNodeJS.Service
 let Characteristic: HomebridgeHapExtendedCharacteristic
 let	Accessory: HAPNodeJS.Accessory
+let Response: null | Promise<AirconResponse> | {
+	timestamp: number,
+	response: AirconResponse,
+}
+
 class SamsungAircon {
 	aircon: HAPNodeJS.Service
 	airconFilter: HAPNodeJS.Service
@@ -228,6 +235,59 @@ class SamsungAircon {
 			)
 		})
 	}
+	
+	/**
+	 * This method is a superset of execRequest
+	 * It would try to avoid multiple queries
+	 * which was rather slow if you are using a Rasperberry
+	 * Since each query is just to get a subset of the full response
+	 * we can just get the full in a single request and await a single Promise
+	 * and then distribute the result to other queries.
+	 * Note: when it is Not a Promise instance,
+	 * execPostRequest would clear global Response to null.
+	 */
+	public execGetRequest: (dottedKey?: string) => Promise<JsonType | undefined>
+	= async (dottedKey) => {
+		const timestamp = new Date().getTime()
+		if (!!Response && !(Response instanceof Promise)) {
+			// This is a previously resolved Response. Check Timestamp
+			// When timestamp is close, assume recent, accurate result
+			if (timestamp - Response.timestamp <= 3000) {
+				return getVal(Response.response as any as JsonType, dottedKey)
+			} else {
+				Response = null
+			}
+		}
+		if (!Response) {
+			// Do not await here
+			Response = this.execRequest(
+				this.genCurlGetStr() // full response
+			) as any as Promise<AirconResponse>
+		}
+		// By now, Response should be a Promise
+		if (Response instanceof Promise) {
+			try {
+				const response = await Response
+				Response = {
+					response,
+					timestamp,
+				}
+				return getVal(response as any as JsonType, dottedKey)
+			} catch (err) {
+				Response = null
+				throw (err)
+			}
+		}
+		return undefined
+	}
+
+	public execPostRequest: (curlCommandString: string) => Promise<JsonType>
+	= (curlCommandString) => {
+		if (!!Response && !(Response instanceof Promise)) {
+			Response = null
+		}
+		return this.execRequest(curlCommandString)
+	}
 
 	public identify(callback) {
 		this.log('Identifying Aircon: ' + this.name)
@@ -281,8 +341,7 @@ class SamsungAircon {
 
 	public getActive: () => Promise<EnumValueLiterals<HbActiveEnum>>
 	= async () => {
-		const curlStr = this.genCurlGetStr('Operation.power')
-		const curlResponse = await this.execRequest(curlStr) as OnOff
+		const curlResponse = await this.execGetRequest('Operation.power') as OnOff | undefined
 			
 		if (typeof curlResponse === 'string') { // just to safe-guard response
 			const char = Characteristic.Active
@@ -307,14 +366,13 @@ class SamsungAircon {
 				: 'Off',
 			},
 		})
-		await this.execRequest(curlStr)
+		await this.execPostRequest(curlStr)
 		return null
 	}
 	
 	public getCurrentTemperature: () => Promise<number>
 	= async () => {
-		const curlStr = this.genCurlGetStr('Temperatures[0].current')
-		const curlResponse = await this.execRequest(curlStr) as number
+		const curlResponse = await this.execGetRequest('Temperatures[0].current') as number | undefined
 		if (!!curlResponse && typeof curlResponse === 'number') {
 			const cur_temp = Math.round(curlResponse * 10) / 10
 			/*this.aircon
@@ -330,8 +388,7 @@ class SamsungAircon {
 	// 'Cool', 'Heat' etc.
 	public getMode: () => Promise<EnumValueLiterals<HbTargetHeaterCoolerStateEnum>>
 	= async () => {
-		const curlStr = this.genCurlGetStr('Mode.modes[0]')
-		const curlResponse = await this.execRequest(curlStr) as AirconMode
+		const curlResponse = await this.execGetRequest('Mode.modes[0]') as AirconMode | undefined
 		const char = Characteristic.TargetHeaterCoolerState
 		switch (curlResponse) {
 			case 'Auto':
@@ -370,21 +427,13 @@ class SamsungAircon {
 				})() as AirconMode
 			],
 		}, 'mode')
-		await this.execRequest(curlStr)
+		await this.execPostRequest(curlStr)
 		return null
-	}
-
-	private getIntFromUnderscoredString(str?: string): number {
-		if (!str) {
-			return NaN
-		}
-		return parseInt(str.split('_').pop() || '')
 	}
 
 	public getSwingMode: () => Promise<EnumValueLiterals<HbSwingModeEnum>>
 	= async () => {
-		const curlStr = this.genCurlGetStr('Wind.direction')
-		const curlResponse = await this.execRequest(curlStr) as Swing
+		const curlResponse = await this.execGetRequest('Wind.direction') as Swing | undefined
 		const char = Characteristic.SwingMode
 		switch (curlResponse) {
 			case 'Fix':
@@ -399,10 +448,9 @@ class SamsungAircon {
 	public setSwingMode: (state: EnumValueLiterals<HbSwingModeEnum>) => Promise<null>
 	= async (state) => {
 		const char = Characteristic.SwingMode
-
-		const cur_wind_status = await this.execRequest(this.genCurlGetStr('Wind')) as any as Wind
+		const cur_wind_status = await this.execGetRequest('Wind') as any as Wind | undefined
 		const curlStr = this.genCurlSetStr(
-			Object.assign(cur_wind_status, {
+			Object.assign(cur_wind_status || {}, {
 				direction: (() => {
 					switch(state) {
 						case char.SWING_DISABLED:
@@ -416,21 +464,20 @@ class SamsungAircon {
 			}),
 			'wind',
 		)
-		await this.execRequest(curlStr)
+		await this.execPostRequest(curlStr)
 		return null
 	}
 
 	public getRotationSpeed: () => Promise<number>
 	= async () => {
-		const curlStr = this.genCurlGetStr('Wind.speedLevel')
-		const curlResponse = await this.execRequest(curlStr) as number
+		const curlResponse = await this.execGetRequest('Wind.speedLevel') as number | undefined
 		return curlResponse || 0
 	}
 
 	public setRotationSpeed: (state: number) => Promise<null>
 	= async (state) => {
-		const cur_wind_status = await this.execRequest(this.genCurlGetStr('Wind')) as any as Wind
-		const { maxSpeedLevel } = cur_wind_status
+		const cur_wind_status = await this.execGetRequest('Wind') as any as Wind | undefined
+		const { maxSpeedLevel = 4 } = cur_wind_status || {}
 		const curlStr = this.genCurlSetStr(
 			Object.assign(cur_wind_status, {
 				speedLevel: (() => {
@@ -445,14 +492,13 @@ class SamsungAircon {
 			}),
 			'wind',
 		)
-		await this.execRequest(curlStr)
+		await this.execPostRequest(curlStr)
 		return null
 	}
 
 	public getTargetTemperature: () => Promise<number>
 	= async () => {
-		const curlStr = this.genCurlGetStr('Temperatures[0].desired')
-		const curlResponse = await this.execRequest(curlStr) as number
+		const curlResponse = await this.execGetRequest('Temperatures[0].desired') as number | undefined
 		if (!!curlResponse && typeof curlResponse === 'number') {
 			return Math.round(curlResponse)
 		} else {
@@ -466,14 +512,13 @@ class SamsungAircon {
 		const curlStr = this.genCurlSetStr({
 			desired: state,
 		}, 'temperatures/0')
-		await this.execRequest(curlStr)
+		await this.execPostRequest(curlStr)
 		return null
 	}
 
 	public getCurrentHeaterCoolerState: () => Promise<EnumValueLiterals<HbCurrentHeaterCoolerStateEnum>>
 	= async () => {
-		const curlStr = this.genCurlGetStr('Mode.modes[0]')
-		const curlResponse = await this.execRequest(curlStr) as AirconMode
+		const curlResponse = await this.execGetRequest('Mode.modes[0]') as AirconMode | undefined
 		const char = Characteristic.CurrentHeaterCoolerState
 		switch (curlResponse) {
 			case 'Auto':
@@ -498,19 +543,18 @@ class SamsungAircon {
 		filterAlarmTime: number,
 	}> // Promise all in number
 	= async () => {
-		const curlStr = this.genCurlGetStr('Mode.options')
-		const curlResponse = await this.execRequest(curlStr) as AirconModeOption[]
+		const curlResponse = await this.execGetRequest('Mode.options') as AirconModeOption[] | undefined || []
 		
 		// There is a FilterCleanAlarm_0, but seems not for this purpose...
 		// find 'FilterTime_x' etc.
 		const FilterTimeStr = curlResponse.find((opt) => opt.startsWith('FilterTime_'))
 		const FilterAlarmTimeStr = curlResponse.find((opt) => opt.startsWith('FilterAlarmTime_'))
 		
-		const filterTime = this.getIntFromUnderscoredString(FilterTimeStr) // This / 10 is hour
-		const filterAlarmTime = this.getIntFromUnderscoredString(FilterAlarmTimeStr) // This is in hour
+		const filterTime = getIntFromUnderscoredString(FilterTimeStr) // value / 10 is hour
+		const filterAlarmTime = getIntFromUnderscoredString(FilterAlarmTimeStr) // This is in hour
 		
 		return {
-			filterTime: filterTime / 10 || 0,
+			filterTime: (filterTime || 0) / 10 || 0,
 			filterAlarmTime: filterAlarmTime || 0,
 		}
 	}
