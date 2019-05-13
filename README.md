@@ -6,7 +6,9 @@ This allows you to control your Samsung air conditioner with HomeKit and Siri.
 
 ## Air Conditioner Model
 
-Tested with AJ\*\*\*MBADEC
+Tested with AJ009MBADEC, should work with all AJ\*\*\*MBADEC models.
+
+![Samsung AJ009MBADEC](https://images.samsung.com/is/image/samsung/sg-sac-fjm-5ticks-aj009mbadec-sp-frontopenwhite-62829763?$PD_GALLERY_L_JPG$)
 
 ## Installation
 
