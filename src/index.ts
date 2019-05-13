@@ -29,10 +29,6 @@ import {
 let Service: HAPNodeJS.Service
 let Characteristic: HomebridgeHapExtendedCharacteristic
 let	Accessory: HAPNodeJS.Accessory
-let Response: null | Promise<AirconResponse> | {
-	timestamp: number,
-	response: AirconResponse,
-}
 
 class SamsungAircon {
 	aircon: HAPNodeJS.Service
@@ -45,9 +41,12 @@ class SamsungAircon {
 	userAllowedMode: 'heat' | 'cool' | 'both'
 	patchCert: string
 	accessoryName: string
-	response: string
 	curlGetPartials: string[]
 	curSetPartials: (request: JsonType, append: string) => string[]
+	response: null | Promise<AirconResponse> | {
+		timestamp: number,
+		response: AirconResponse,
+	}
 	constructor(
 		log: (...args: any) => void,
 		config: SamsungAirconConfig,
@@ -62,7 +61,7 @@ class SamsungAircon {
 		this.userAllowedMode = ['heat', 'cool', 'both'].includes(userAllowedMode.toLowerCase())
 			? userAllowedMode.toLowerCase() as 'heat' | 'cool' | 'both'
 			: 'both'
-		this.response = ''
+		this.response = null
 		this.curlGetPartials = [
 			'curl -s -k',
 			'-H "Content-Type: application/json"',
@@ -249,32 +248,32 @@ class SamsungAircon {
 	public execGetRequest: (dottedKey?: string) => Promise<JsonType | undefined>
 	= async (dottedKey) => {
 		const timestamp = new Date().getTime()
-		if (!!Response && !(Response instanceof Promise)) {
+		if (!!this.response && !(this.response instanceof Promise)) {
 			// This is a previously resolved Response. Check Timestamp
 			// When timestamp is close, assume recent, accurate result
-			if (timestamp - Response.timestamp <= 3000) {
-				return getVal(Response.response as any as JsonType, dottedKey)
+			if (timestamp - this.response.timestamp <= 3000) {
+				return getVal(this.response.response as any as JsonType, dottedKey)
 			} else {
-				Response = null
+				this.response = null
 			}
 		}
-		if (!Response) {
+		if (!this.response) {
 			// Do not await here
-			Response = this.execRequest(
+			this.response = this.execRequest(
 				this.genCurlGetStr() // full response
 			) as any as Promise<AirconResponse>
 		}
 		// By now, Response should be a Promise
-		if (Response instanceof Promise) {
+		if (this.response instanceof Promise) {
 			try {
-				const response = await Response
-				Response = {
+				const response = await this.response
+				this.response = {
 					response,
 					timestamp,
 				}
 				return getVal(response as any as JsonType, dottedKey)
 			} catch (err) {
-				Response = null
+				this.response = null
 				throw (err)
 			}
 		}
@@ -283,8 +282,8 @@ class SamsungAircon {
 
 	public execPostRequest: (curlCommandString: string) => Promise<JsonType>
 	= (curlCommandString) => {
-		if (!!Response && !(Response instanceof Promise)) {
-			Response = null
+		if (!!this.response && !(this.response instanceof Promise)) {
+			this.response = null
 		}
 		return this.execRequest(curlCommandString)
 	}

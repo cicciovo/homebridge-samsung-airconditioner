@@ -183,7 +183,6 @@ require('@babel/polyfill');
 var Service;
 var Characteristic;
 var Accessory;
-var Response;
 
 var SamsungAircon =
 /*#__PURE__*/
@@ -213,11 +212,11 @@ function () {
 
     _defineProperty(this, "accessoryName", void 0);
 
-    _defineProperty(this, "response", void 0);
-
     _defineProperty(this, "curlGetPartials", void 0);
 
     _defineProperty(this, "curSetPartials", void 0);
+
+    _defineProperty(this, "response", void 0);
 
     _defineProperty(this, "genCurlGetStr", function (dottedKey) {
       var last_str = !!dottedKey ? ` \'.Devices[0].${dottedKey}\'` : ` \'.Devices[0]\'`;
@@ -260,41 +259,41 @@ function () {
               case 0:
                 timestamp = new Date().getTime();
 
-                if (!(!!Response && !(Response instanceof Promise))) {
+                if (!(!!_this.response && !(_this.response instanceof Promise))) {
                   _context.next = 7;
                   break;
                 }
 
-                if (!(timestamp - Response.timestamp <= 3000)) {
+                if (!(timestamp - _this.response.timestamp <= 3000)) {
                   _context.next = 6;
                   break;
                 }
 
-                return _context.abrupt("return", getVal(Response.response, dottedKey));
+                return _context.abrupt("return", getVal(_this.response.response, dottedKey));
 
               case 6:
-                Response = null;
+                _this.response = null;
 
               case 7:
-                if (!Response) {
+                if (!_this.response) {
                   // Do not await here
-                  Response = _this.execRequest(_this.genCurlGetStr() // full response
+                  _this.response = _this.execRequest(_this.genCurlGetStr() // full response
                   );
                 } // By now, Response should be a Promise
 
 
-                if (!(Response instanceof Promise)) {
+                if (!(_this.response instanceof Promise)) {
                   _context.next = 21;
                   break;
                 }
 
                 _context.prev = 9;
                 _context.next = 12;
-                return Response;
+                return _this.response;
 
               case 12:
                 response = _context.sent;
-                Response = {
+                _this.response = {
                   response,
                   timestamp
                 };
@@ -303,7 +302,7 @@ function () {
               case 17:
                 _context.prev = 17;
                 _context.t0 = _context["catch"](9);
-                Response = null;
+                _this.response = null;
                 throw _context.t0;
 
               case 21:
@@ -323,8 +322,8 @@ function () {
     }());
 
     _defineProperty(this, "execPostRequest", function (curlCommandString) {
-      if (!!Response && !(Response instanceof Promise)) {
-        Response = null;
+      if (!!_this.response && !(_this.response instanceof Promise)) {
+        _this.response = null;
       }
 
       return _this.execRequest(curlCommandString);
@@ -1006,7 +1005,7 @@ function () {
     this.patchCert = patchCert;
     this.accessoryName = name;
     this.userAllowedMode = ['heat', 'cool', 'both'].includes(userAllowedMode.toLowerCase()) ? userAllowedMode.toLowerCase() : 'both';
-    this.response = '';
+    this.response = null;
     this.curlGetPartials = ['curl -s -k', '-H "Content-Type: application/json"', `-H "Authorization: Bearer ${token}"`, `--cert ${patchCert}`, `--insecure -X GET`, `https://${ip}:8888/devices|jq`];
 
     this.curSetPartials = function (request, append) {
