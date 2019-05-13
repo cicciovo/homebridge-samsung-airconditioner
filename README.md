@@ -133,13 +133,13 @@ You may refer to the `config-sample.json` in this project folder as reference.
 }
 ```
 
-#### userAllowedMode
+#### `userAllowedMode`
 
 Accepted value: `'both'`, `'heat'`, `'cool'`.
 
-While this AC technically both heating and cooling, Samsung has made specific models for some countries, and may have either heating or cooling disabled (even though the disabled mode can still be found on the official remote control, it's not functioning). Also, some parts of the world need not another function.
+While this AC technically supports both heating and cooling, Samsung has made specific models for some countries, and may have either heating or cooling disabled (even though the disabled mode can still be found on the official remote control, it's not functioning). Also, some parts of the world need not one of the modes.
 
-Based on your model and your living place, you may set this value to `'heat'` to allow heating only, or `'cool'` to allow cooling only, or `'both'`.
+Based on your AC model and your living place, you may set this value to `'heat'` to allow heating only, or `'cool'` to allow cooling only, or `'both'`.
 
 Please note that due to Homekit limitation, this may not be perfect.
 
