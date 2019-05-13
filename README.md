@@ -20,11 +20,13 @@ Make sure that you have Node and npm installed.
 npm install -g homebridge
 ```
 
-if you encounter permission issue, you may need do this with `sudo` and `--unsafe-perm`:
+If you encounter permission issue, you may need do this with `sudo` and `--unsafe-perm`:
 
 ```
 sudo npm install -g homebridge --unsafe-perm
 ```
+
+If you are on Raspberry or Debian system, and wish to add `homebridge` to use `systemd` to run homebridge to persist this service, here is the [reference](https://gist.github.com/johannrichard/0ad0de1feb6adb9eb61a/).
 
 ### Install Plugin
 
