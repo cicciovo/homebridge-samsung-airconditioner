@@ -4,6 +4,10 @@ This is a [Homebridge](https://homebridge.io/) plugin for Samsung Smart Air Cond
 
 This allows you to control your Samsung air conditioner with HomeKit and Siri.
 
+## Air Conditioner Model
+
+Tested with AJ\*\*\*MBADEC
+
 ## Installation
 
 Make sure that you have Node and npm installed.
