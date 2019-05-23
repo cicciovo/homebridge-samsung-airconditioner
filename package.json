@@ -1,45 +1,45 @@
 {
-	"name": "homebridge-samsung-aircon-8888",
-	"version": "0.2.0",
-	"description": "Homebridge plugin for the Samsung smart air conditioners with port 8888",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"scripts": {
-		"dev": "rollup -c -w",
-		"build": "rollup -c",
-		"prepublishOnly": "npm run build"
-	},
-	"keywords": [
-		"Samsung",
-		"Air Conditioner",
-		"homebridge-plugin"
-	],
-	"repository": {
-		"type": "git",
-		"url:": "https://github.com/huashengwang1989/homebridge-samsung-airconditioner.git"
-	},
-	"author": "peanut",
-	"license": "MIT",
-	"engines": {
-		"node": ">=0.8",
-		"homebridge": ">=0.1"
-	},
-	"dependencies": {
-		"@babel/polyfill": "^7.4.4",
-		"@types/node": "^12.0.0",
-		"curl": ">=0.1.0",
-		"exec": ">= 0.1.0",
-		"jq": ">=0.1.0"
-	},
-	"devDependencies": {
-		"@babel/core": "^7.4.4",
-		"@babel/plugin-proposal-class-properties": "^7.4.4",
-		"@babel/preset-env": "^7.4.4",
-		"@babel/preset-typescript": "^7.3.3",
-		"homebridge": "^0.4.49",
-		"rollup": "^1.11.3",
-		"rollup-plugin-node-resolve": "^4.2.3",
-		"rollup-plugin-babel": "^4.3.2",
-		"typescript": "^3.4.5"
-	}
+  "name": "homebridge-samsung-smart-aircon",
+  "version": "0.2.1",
+  "description": "Homebridge plugin for the Samsung smart air conditioners with port 8888",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "Samsung",
+    "Air Conditioner",
+    "homebridge-plugin"
+  ],
+  "repository": {
+    "type": "git",
+    "url:": "https://github.com/huashengwang1989/homebridge-samsung-aircon-8888.git"
+  },
+  "author": "Huasheng",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.16.0",
+    "homebridge": ">=0.4.0"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.4.4",
+    "@types/node": "^12.0.0",
+    "curl": ">=0.1.0",
+    "exec": ">= 0.1.0",
+    "jq": ">=0.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-typescript": "^7.3.3",
+    "homebridge": "^0.4.49",
+    "rollup": "^1.11.3",
+    "rollup-plugin-node-resolve": "^4.2.3",
+    "rollup-plugin-babel": "^4.3.2",
+    "typescript": "^3.4.5"
+  }
 }

@@ -1,4 +1,5 @@
-# homebridge-samsung-aircon-8888
+# homebridge-samsung-smart-aircon
+(homebridge-samsung-aircon-8888 <= This name triggers npm spam check...)
 
 This is a [Homebridge](https://homebridge.io/) plugin for Samsung Smart Air Conditioner with Port 8888. If you have your Samsung AC working over Port 2878, please check out [this project](https://github.com/SebastianOsinski/HomebridgePluginSamsungAirConditioner).
 
@@ -30,9 +31,11 @@ If you are on Raspberry or Debian system, and wish to use `systemd` to run `home
 
 ### Install Plugin
 
-At current stage, this plugin has not been published to npm.
+```bash
+npm install -g homebridge-samsung-smart-aircon
+```
 
-Therefore, you need `git clone` this plugin, and install it with `npm install -g /your-local-absolute-path-to-plugin` or via `npm link`.
+Please apply `sudo` and / or `--unsafe-perm` if you encounter any permission error.
 
 ### Install jq
 [jq](https://stedolan.github.io/jq/) is a command-line JSON parse tool. You need install `jq` first.
