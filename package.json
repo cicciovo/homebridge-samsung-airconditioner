@@ -1,6 +1,6 @@
 {
   "name": "homebridge-samsung-smart-aircon",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Homebridge plugin for the Samsung smart air conditioners with port 8888",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url:": "https://github.com/huashengwang1989/homebridge-samsung-aircon-8888.git"
+    "url": "https://github.com/huashengwang1989/homebridge-samsung-aircon-8888.git"
   },
   "author": "Huasheng",
   "license": "MIT",
