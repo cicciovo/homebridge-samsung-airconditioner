@@ -1,6 +1,8 @@
 # homebridge-samsung-smart-aircon
 (homebridge-samsung-aircon-8888 <= This name triggers npm spam check...)
 
+<p color="red">Due to the last-minute renaming of the module when being published to npm, some places, including this instruction, still had the old name stated. If you see the name "homebridge-samsung-aircon-8888" and you have the module installed from npm, please update them accordingly. This includes, you need specify the localtion for the cert when running the python script, and do not blindly follow the sample config file. I will update them in another day.</p>
+
 This is a [Homebridge](https://homebridge.io/) plugin for Samsung Smart Air Conditioner with Port 8888. If you have your Samsung AC working over Port 2878, please check out [this project](https://github.com/SebastianOsinski/HomebridgePluginSamsungAirConditioner).
 
 This allows you to control your Samsung air conditioner with HomeKit and Siri.
