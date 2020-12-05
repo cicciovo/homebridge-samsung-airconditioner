@@ -114,10 +114,12 @@ If you are on Linux:
 ```bash
  sudo mkdir /usr/share/ca-certificates/local
  
- sudo cp /usr/lib/node_modules/homebridge-samsung-aircon-8888	/ac14k_m.pem /usr/share/ca-certificates/local/
+ sudo cp /usr/lib/node_modules/homebridge-samsung-smart-aircon/ac14k_m.pem /usr/share/ca-certificates/local/
  
  sudo update-ca-certificates
  ```
+ 
+| Note that if on Ubuntu, you may need copy to `/usr/local/share/ca-certificates` instead and rename the file to `ac14k_m.crt`, before `update-ca-certificates`.
 
 ### Update Homebridge Config File
 
