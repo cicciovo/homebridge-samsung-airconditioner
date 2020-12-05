@@ -583,7 +583,7 @@ export default function(homebridge: any) {
 	Accessory = homebridge.hap.Accessory
 	//UUIDGen = homebridge.hap.uuid
 	homebridge.registerAccessory(
-		'homebridge-samsung-air-conditioner',
+		'homebridge-samsung-smart-aircon',
 		'SamsungSmartAirConditioner',
 		SamsungAircon,
 	)
