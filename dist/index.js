@@ -1115,7 +1115,7 @@ function index (homebridge) {
   Characteristic = homebridge.hap.Characteristic;
   Accessory = homebridge.hap.Accessory; //UUIDGen = homebridge.hap.uuid
 
-  homebridge.registerAccessory('homebridge-samsung-air-conditioner', 'SamsungSmartAirConditioner', SamsungAircon);
+  homebridge.registerAccessory('homebridge-samsung-smart-aircon', 'SamsungSmartAirConditioner', SamsungAircon);
 }
 
 module.exports = index;
