@@ -132,7 +132,7 @@ class SamsungAircon {
 			.getCharacteristic(Characteristic.HeatingThresholdTemperature)
 			.setProps({
 				minValue: -10,
-				maxValue: 20,
+				maxValue: 30,
 				minStep: 1,
 				} as HAPNodeJS.CharacteristicProps)
 			.on('get', callbackify(this.getTargetTemperature))
