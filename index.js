@@ -154,6 +154,7 @@ getCurrentHeaterCoolerState: function (callback) {
                      callback(null, Characteristic.CurrentHeaterCoolerState.IDLE);
                      }else
                      this.log(this.response+ "azz");
+                         callback(null, Characteristic.CurrentHeaterCoolerState.AUTO);
                      //callback();
                      }
                      }.bind(this))
@@ -234,19 +235,20 @@ setActive: function(state, callback) {
             str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'" --cert '+patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+ip+':8888/devices/0';
         }
     }
-    activeFuncion(state);
     this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
                      this.log('Power function failed', stderr);
-                     //callback(error);
+                     callback(error);
                      } else {
-                     this.log('Power function OK');
+                     this.log('Power function OK HERE');
                      //callback();
                      this.log(stdout);
                      }
                      }.bind(this));
+    activeFuncion(state);
+    
     callback();
 },
     
@@ -312,11 +314,11 @@ getModalita: function(callback) {
                      this.log("AZZZ");
                      Characteristic.TargetHeaterCoolerState.HEAT;
                      } else if (this.response == "FAN") {
-                     callback(null, null);
+                     Characteristic.TargetHeaterCoolerState.AUTO;
                      } else if (this.response == "AUTO") {
                      Characteristic.TargetHeaterCoolerState.AUTO;
                      }else {
-                     this.log(this.response+ "azz");
+                     this.log(this.response+ "azz HERE");
                      }
                      
                               }.bind(this));
