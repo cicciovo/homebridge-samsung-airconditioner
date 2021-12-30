@@ -94,7 +94,7 @@ getHeatingUpOrDwTemperature: function(callback) {
                      } else {
                      //this.log('Power function OK');
                      //this.response=stdout;
-                     this.log("TEMPERTURA DESIDERTA");
+                     this.log("TEMPERTURA DESIDERTA in getUPorDOWN");
                      body=parseInt(stdout);
                      this.log(stdout);
                      this.log(body);
@@ -136,10 +136,10 @@ getCurrentHeaterCoolerState: function (callback) {
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
-                     //this.log('Power function failed', stderr);
+                     this.log('getCurrentSTATE function failed', stderr);
                      callback(error);
                      } else {
-                     //this.log('Power function OK');
+                     //this.log('getCurrentSTATE function OK');
                      //this.log(stdout);
                      this.response=stdout;
                      this.response= this.response.substr(1,this.response.length-3);
@@ -149,11 +149,12 @@ getCurrentHeaterCoolerState: function (callback) {
                      } else if (this.response == "Heat") {
                      callback(null, Characteristic.CurrentHeaterCoolerState.HEATING);
                      } else if (this.response == "Fan") {
-                     callback(null, Characteristic.CurrentHeaterCoolerState.INACTIVE);
+                         this.log('Clima state FAN but become AUTO');
+                     callback(null, Characteristic.CurrentHeaterCoolerState.AUTO);                      
                      } else if (this.response == "Auto") {
-                     callback(null, Characteristic.CurrentHeaterCoolerState.IDLE);
+                     callback(null, Characteristic.CurrentHeaterCoolerState.AUTO);                        
                      }else
-                     this.log(this.response+ "azz");
+                     this.log(this.response+ "Undefined Current STATE of CLIMA, set to AUTO");
                          callback(null, Characteristic.CurrentHeaterCoolerState.AUTO);
                      //callback();
                      }
@@ -168,10 +169,10 @@ getCurrentTemperature: function(callback) {
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
-                     this.log('Power function failed', stderr);
+                     this.log('getCurrentTemperature function failed', stderr);
                      callback(error);
                      } else {
-                     this.log('Power function OK');
+                     this.log('getCurrentTemperature function OK');
                      //callback();
                      this.log(stdout);
                      body=parseInt(stdout);
@@ -205,12 +206,14 @@ getActive: function(callback) {
                      
                      }
                      if (this.response == "Off") {
+                         this.log("Clima in getModalita is OFF");
                      callback(null, Characteristic.Active.INACTIVE);
                      } else if (this.response == "On") {
-                     this.log("Acceso");
+                     this.log("Clima in getModalita IS ON");
                      callback(null, Characteristic.Active.ACTIVE);
                      } else {
-                     this.log(this.response+ "NON LO SO");
+                     this.log(this.response+ " Unknow if Clima is ON or OFF");
+                         callback(null, null);
                      }
                      }.bind(this));
     
@@ -221,17 +224,16 @@ setActive: function(state, callback) {
     var token, ip, patchCert;
     token=this.token;
     ip=this.ip;
-    patchCert=this.patchCert;
-    
-    this.log("COSA E");
+    patchCert=this.patchCert;   
+    this.log("COSA E SETACTIVE");
     this.log(state);
     this.log(ip);
     var activeFuncion = function(state) {
         if (state==Characteristic.Active.ACTIVE) {
             str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'" --cert '+patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://'+ip+':8888/devices/0';
-            console.log("ATTIVO");
+            console.log("The Clima is ATTIVO in setModalita");
         } else {
-            console.log("INATTIVO");
+            console.log("The Clima is INATTIVO or UNKNOW in setModalita");
             str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'" --cert '+patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+ip+':8888/devices/0';
         }
     }
@@ -255,17 +257,16 @@ setActive: function(state, callback) {
 setPowerState: function(powerOn, callback) {
     var body;
     var str;
-    this.log("Il clima per ora è ");
-    
+    this.log("Il clima per ora è ");   
     if (powerOn) {
         body=this.setOn
-        this.log("Acceso");
+        this.log("Accendo ");
         str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://'+this.ip+':8888/devices/0';
         //powerOn=false;
         
     } else {
         body=this.setOff;
-        this.log("Spengo");
+        this.log("Spengo ");
         str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+this.ip+':8888/devices/0';
         //powerOn=true;
     }
@@ -273,10 +274,10 @@ setPowerState: function(powerOn, callback) {
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
-                     this.log('Power function failed', stderr);
+                     this.log('SETPowerSTATE function failed', stderr);
                      callback(error);
                      } else {
-                     this.log('Power function OK');
+                     this.log('SETPowerSTATE function OK');
                      callback();
                      this.log(stdout);
                      }
@@ -287,7 +288,7 @@ getModalita: function(callback) {
     var str;
     //var response;
     var body;
-    this.log("Mettere modalita");
+    this.log("Mettere modalita ");
     //str =  'curl -X PUT -d \'{"speedLevel": 1}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure https://192.168.1.201:8888/devices/0/wind';
    // if (data.setting.power=="OFF") {
     //    callback(null, null);
@@ -297,10 +298,10 @@ getModalita: function(callback) {
     
     this.execRequest(str, body, function(error, stdout, stderr) {
                               if(error) {
-                              this.log('Power function failed', stderr);
+                              this.log('getModalita function failed', stderr);
                               callback(error);
                               } else {
-                              this.log('Power function OK');
+                              this.log('getModalita function OK ');
                                      this.log(stdout);
                                      this.response=stdout;
                      this.response= this.response.substr(1,this.response.length-3);
@@ -309,16 +310,20 @@ getModalita: function(callback) {
                               }
                      
                      if (this.response == "Cool") {
+                         this.log("Cool ");
                      Characteristic.TargetHeaterCoolerState.COOL;
                      } else if (this.response == "Heat") {
-                     this.log("AZZZ");
+                     this.log("Heat ");
                      Characteristic.TargetHeaterCoolerState.HEAT;
                      } else if (this.response == "FAN") {
+                         this.log("Fan ");
                      Characteristic.TargetHeaterCoolerState.AUTO;
                      } else if (this.response == "AUTO") {
+                         this.log("Auto ");
                      Characteristic.TargetHeaterCoolerState.AUTO;
                      }else {
-                     this.log(this.response+ "azz HERE");
+                     this.log(this.response+ "Unknow modalita, return AUTO");
+                         Characteristic.TargetHeaterCoolerState.AUTO;
                      }
                      
                               }.bind(this));
@@ -335,10 +340,10 @@ setModalita: function(state, callback) {
                  this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
-                                 this.log('Power function failed', stderr);
+                                 this.log('SetModalita COOL function failed', stderr);
                                  callback(error);
                                  } else {
-                                 this.log('Power function OK');
+                                 this.log('SetModalita Cool function OK');
                                  callback();
                                  this.log(stdout);
                                  }
@@ -355,10 +360,10 @@ setModalita: function(state, callback) {
                 this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
-                                 this.log('Power function failed', stderr);
+                                 this.log('setModalita HEAT function failed', stderr);
                                  callback(error);
                                  } else {
-                                 this.log('Power function OK');
+                                 this.log('setModalita Heat function OK');
                                  callback();
                                  this.log(stdout);
                                  }
@@ -374,10 +379,10 @@ setModalita: function(state, callback) {
                 this.log(str);
                 this.execRequest(str, body, function(error, stdout, stderr) {
                                  if(error) {
-                                 this.log('Power function failed', stderr);
+                                 this.log('setModalita AUTO function failed', stderr);
                                  callback(error);
                                  } else {
-                                 this.log('Power function OK');
+                                 this.log('SetModalita Auto function OK');
                                  callback();
                                  this.log(stdout);
                                  }
