@@ -237,6 +237,9 @@ setActive: function(state, callback) {
             str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+token+'" --cert '+patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+ip+':8888/devices/0';
         }
     }
+
+activeFuncion(state);
+
     this.log(str);
     
     this.execRequest(str, body, function(error, stdout, stderr) {
@@ -249,7 +252,7 @@ setActive: function(state, callback) {
                      this.log(stdout);
                      }
                      }.bind(this));
-    activeFuncion(state);
+   //activeFuncion(state);
     
     callback();
 },
