@@ -1,7 +1,6 @@
 var Service, Characteristic;
 var exec2 = require("child_process").exec;
 var response;
-
 module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
@@ -9,7 +8,6 @@ module.exports = function(homebridge) {
     //UUIDGen = homebridge.hap.uuid;
     homebridge.registerAccessory("homebridge-samsung-airconditioner", "SamsungAirconditioner", SamsungAirco);
 };
-
 function SamsungAirco(log, config) {
     this.log=log;
     this.name= config["name"];
@@ -20,12 +18,7 @@ function SamsungAirco(log, config) {
     this.setOn = true;
     this.setOff= false;
 }
-
-
-
 SamsungAirco.prototype = {
-    
-    
 execRequest: function(str, body, callback){
     exec2(str, function(error, stdout, stderr){
         callback(error, stdout, stderr)
@@ -36,18 +29,9 @@ execRequest: function(str, body, callback){
         this.log("Identify the clima!");
         callback(); // success
     },
-    
-    
-
 getServices: function() {
-    
-    //var uuid;
-    //uuid = UUIDGen.generate(this.accessoryName);
     this.aircoSamsung = new Service.HeaterCooler(this.name);
-    
-        
-    this.aircoSamsung.getCharacteristic(Characteristic.Active).on('get',this.getActive.bind(this)).on('set', this.setActive.bind(this)); //On  or Off
-        
+  this.aircoSamsung.getCharacteristic(Characteristic.Active).on('get',this.getActive.bind(this)).on('set', this.setActive.bind(this)); //On  or Off
         this.aircoSamsung.getCharacteristic(Characteristic.CurrentTemperature)
         .setProps({
                   minValue: 0,
@@ -55,12 +39,9 @@ getServices: function() {
                   minStep: 0.01
                   })
         .on('get', this.getCurrentTemperature.bind(this));
-
-        this.aircoSamsung.getCharacteristic(Characteristic.TargetHeaterCoolerState).on('get',this.getModalita.bind(this)).on('set', this.setModalita.bind(this));
-        
-        this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState)
+ this.aircoSamsung.getCharacteristic(Characteristic.TargetHeaterCoolerState).on('get',this.getModalita.bind(this)).on('set', this.setModalita.bind(this));
+ this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState)
         .on('get', this.getCurrentHeaterCoolerState.bind(this));
-        
         this.aircoSamsung.getCharacteristic(Characteristic.HeatingThresholdTemperature)
         .setProps({
                   minValue: 16,
@@ -69,37 +50,17 @@ getServices: function() {
                   })
         .on('get', this.getHeatingUpOrDwTemperature.bind(this))
         .on('set', this.setHeatingUpOrDwTemperature.bind(this));
-    
-    
-       //.RotationSpeed
+       //.RotationSpeed in my case Quite mode
    this.aircoSamsung.getCharacteristic(Characteristic.SwingMode).on('get', this.getRotationSpeed.bind(this)).on('set', this.setRotationSpeed.bind(this));
-    
-
-
-        
-        var informationService = new Service.AccessoryInformation();
-      
-
-    return [informationService, this.aircoSamsung];
-    
+var informationService = new Service.AccessoryInformation();
+return [informationService, this.aircoSamsung];
 },
-   
-   
-    
     //services
-    
- 
-   getRotationSpeed: function (callback) {
-
+ getRotationSpeed: function (callback) {
                          var body2;
                          str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Mode.options[0]\'';
-                         
-                         this.log(str);
-                        //this.response=stdout;
-     
-
-                         
-                         this.execRequest(str, body2, function(error, stdout, stderr) {
+                         this.log.debug(str);
+                     this.execRequest(str, body2, function(error, stdout, stderr) {
                                           if(error) {
                                           //this.log('Power function failed', stderr);
                                           callback(error);
@@ -209,6 +170,7 @@ getHeatingUpOrDwTemperature: function(callback) {
                      //this.response=stdout;
                      this.log("TEMPERTURA DESIDERTA in getUPorDOWN");
                      body = stdout << 0;
+                    // body=parseInt(stdout)
                      
                    //  body=parseInt(stdout) || 0; se quealocsa va storto mettere solo body=parseInt(stdout) che restituirÃ  Nan
                      if(body==0) {
@@ -317,9 +279,7 @@ getActive: function(callback) {
     var body;
     var OFForON;
     str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Operation.power\'';
-    
     this.log.debug(str);
-    
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
                      this.log('Power function failed', stderr);
@@ -330,8 +290,6 @@ getActive: function(callback) {
                      this.response=stdout;
                      this.response= this.response.substr(1,this.response.length-3);
                      this.log(this.response);
-                     //callback();
-                     
                      }
                      if (this.response == "Off") {
                          this.log("Clima in getModalita is OFF");
@@ -391,16 +349,13 @@ setPowerState: function(powerOn, callback) {
         body=this.setOn
         this.log("Accendo ");
         str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://'+this.ip+':8888/devices/0';
-        //powerOn=false;
         
     } else {
         body=this.setOff;
         this.log("Spengo ");
         str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://'+this.ip+':8888/devices/0';
-        //powerOn=true;
     }
     this.log.debug(str);
-    
     this.execRequest(str, body, function(error, stdout, stderr) {
                      if(error) {
                      this.log('SETPowerSTATE function failed', stderr);
@@ -415,16 +370,10 @@ setPowerState: function(powerOn, callback) {
     
 getModalita: function(callback) {
     var str;
-    //var response;
     var body;
     this.log.debug("Mettere modalita ");
-    //str =  'curl -X PUT -d \'{"speedLevel": 1}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer 0HiRz37Baa" --cert /Users/francescobosco/Desktop/ac14k_m.pem --insecure https://192.168.1.201:8888/devices/0/wind';
-   // if (data.setting.power=="OFF") {
-    //    callback(null, null);
- //   }
     str= 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer '+this.token+'" --cert '+this.patchCert+' --insecure -X GET https://'+this.ip+':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
     this.log.debug(str);
-    
     this.execRequest(str, body, function(error, stdout, stderr) {
                               if(error) {
                               this.log('getModalita function failed', stderr);
@@ -433,28 +382,27 @@ getModalita: function(callback) {
                               this.log('getModalita function OK ');
                                      this.log.debug(stdout);
                                      this.response=stdout;
-                     this.response= this.response.substr(1,this.response.length-3);
+                     this.response = this.response.substr(1,this.response.length-3);
                      this.log(this.response);
-                                    callback();
-                              }
-                     
+                              
                      if (this.response == "Cool") {
                          this.log("Cool ");
-                     Characteristic.TargetHeaterCoolerState.COOL;
+                     callback(null, Characteristic.TargetHeaterCoolerState.COOL);
                      } else if (this.response == "Heat") {
                      this.log("Heat ");
-                     Characteristic.TargetHeaterCoolerState.HEAT;
+                     callback(null, Characteristic.TargetHeaterCoolerState.HEAT);
                      } else if (this.response == "FAN") {
                          this.log("Fan ");
-                     Characteristic.TargetHeaterCoolerState.AUTO;
+                     callback(null, Characteristic.TargetHeaterCoolerState.AUTO);
                      } else if (this.response == "Auto") { //Prima Auto era scritto tutto maiuscolo
                          this.log("Auto ");
-                     Characteristic.TargetHeaterCoolerState.AUTO;
+                     callback(null, Characteristic.TargetHeaterCoolerState.AUTO);
                      }else {
                      this.log(this.response+ " <-- Unknow modalita, return AUTO - ERROR");
-                         Characteristic.TargetHeaterCoolerState.AUTO;
+                        callback(null, Characteristic.TargetHeaterCoolerState.AUTO);
                      }
-                     
+                    // callback();
+                     }
                               }.bind(this));
     
 },
